@@ -9,8 +9,8 @@ import {
   } from "react-router-dom";
 
 let scores = {
-    X: 1,
-    O: -1,
+    X: -1,
+    O: 1,
     tie: 0
 };
 
@@ -82,6 +82,10 @@ export const WithAI = () => {
         squares[i] = 'X';
         setSquares(squares);
         setIsX(!isX);
+        winner = CalculateWinner(squares);
+        if (winner.winner){
+            return
+        }
         bestMove(squares);
     }
 

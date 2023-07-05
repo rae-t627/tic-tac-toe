@@ -10,7 +10,7 @@ import startButton from "../Images/startButton.png"
 import {
   Link,
 } from "react-router-dom";
-
+var text = "/human";
 export const Home = () => {
   useEffect(() => {
     AOS.init();
@@ -23,11 +23,17 @@ export const Home = () => {
   // };
 
   const [mode, setMode] = useState("hvh");
-
+  
   const onModeChange = (e) => {
     setMode(e.target.value);
+    if (mode === "hvh"){
+      text = "/human";
+    }
+    else{
+      text = "/comp";
+    }
   };
-  let text = "/tictactoe";
+  console.log(text)
   return (
     <div className="center">
       <p className="title" data-aos="zoom-in">
@@ -80,10 +86,11 @@ export const Home = () => {
           <Image src={hvcIcon} fluid style={{ maxWidth: "8vh" }} />
         </label>
       </div>
-        
-        <Link to = "/tictactoe">
-          <button className="mt-5"><Image src = {startButton} fluid/></button>
-        </Link>
+      
+      <Link to = {"/" + mode}>
+        <button className="mt-5"><Image src = {startButton} fluid/></button>
+      </Link>
     </div>
   );
 };
+console.log(text, "end")
