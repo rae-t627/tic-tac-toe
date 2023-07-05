@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import MyNavigationBar from "./Components/Navbar.js";
+import { TicTacToe } from "./Components/TictacToe";
+import {
+  Route,
+  Routes,
+  BrowserRouter,
+} from "react-router-dom";
+
+import { Dashboard } from "./Components/Dashboard.js";
+import { Contact } from "./Components/Contact.js";
+import { Home } from "./Components/Home.js";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <div>
+        <MyNavigationBar />
+        <div>
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/tictactoe" element ={<TicTacToe />} />
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
   );
 }
 
