@@ -17,11 +17,11 @@ export const Board = () => {
     let status;
     if (winner.winner){
         status = "Winner: " + winner.winner;
-        buttonClassName = buttonClassName -"hidden";
+        buttonClassName = "";
     }
     else if (winner.isDraw){
         status = "Draw!";
-        buttonClassName = buttonClassName -"hidden";
+        buttonClassName = "";
     }
     else{
         let temp = isX? 'X' : 'O';
@@ -32,8 +32,9 @@ export const Board = () => {
         if (winner.winner || squares[i]){
             return
         }
-        squares[i] = isX? 'X' : 'O';
-        setSquares(squares);
+        const newSquares = [...squares];
+        newSquares[i] = isX? 'X' : 'O';
+        setSquares(newSquares);
         setIsX(!isX);
     }
 
@@ -46,8 +47,20 @@ export const Board = () => {
         return <Square value = {squares[i]} onClick = {() => handleClick(i)} />
     }
     
+    let turnIndicator;
+    if (winner.winner) {
+        turnIndicator = "Winner: Player " + winner.winner + "!";
+    } else if (winner.isDraw) {
+        turnIndicator = "It's a Draw!";
+    } else {
+        turnIndicator = isX ? "Player X's Turn" : "Player O's Turn";
+    }
+
     return(
         <div className="board">
+            <div style={{ fontWeight: 'bold', textAlign: 'center', padding: '10px', fontSize: '1.2rem' }}>
+                {turnIndicator}
+            </div>
             <div className="players">
                 <p>Player 1: X</p>
                 <p>Player 2: O</p>

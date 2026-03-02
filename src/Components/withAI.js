@@ -26,7 +26,7 @@ function minimax(squares, depth, isMaximising){
 
     if (isMaximising){
         let bestScore = -Infinity;
-        for (var i = 0; i < 9; i++){
+        for (let i = 0; i < 9; i++){
             if (squares[i] === null){
                 squares[i] = 'O'
                 let score = minimax(squares, depth + 1, false);
@@ -40,7 +40,7 @@ function minimax(squares, depth, isMaximising){
     }
     else{
         let bestScore = Infinity;
-        for (i = 0; i < 9; i++){
+        for (let i = 0; i < 9; i++){
             if (squares[i] === null){
                 squares[i] = 'X'
                 let score = minimax(squares, depth + 1, true);
@@ -54,9 +54,27 @@ function minimax(squares, depth, isMaximising){
     }    
 }
 
+function computeBestMove(currentSquares){
+    let bestScore = -Infinity;
+    let move;
+    let array = [...currentSquares];
+    for (let i = 0; i < 9; i++){
+        if (array[i] == null){
+            array[i] = 'O';
+            let score = minimax(array, 0, false);
+            array[i] = null;
+            if (score > bestScore){
+                bestScore = score;
+                move = i;
+            }
+        }
+    }
+    return move;
+}
+
 export const WithAI = () => {
     const [squares, setSquares] = React.useState(Array(9).fill(null))
-    const [isX, setIsX] = React.useState(true) //alternate which letter to place on squares
+    const [isX, setIsX] = React.useState(true)
     let buttonClassName = "hidden";
 
     let winner = CalculateWinner(squares);
@@ -68,53 +86,41 @@ export const WithAI = () => {
         else{
             status = "You won!"
         }
-        buttonClassName = buttonClassName -"hidden";
+        buttonClassName = "";
     }
     else if (winner.isDraw){
         status = "Draw!";
-        buttonClassName = buttonClassName -"hidden";
+        buttonClassName = "";
     }
+
+    // Computer moves after player's turn, with a short delay
+    React.useEffect(() => {
+        if (!isX && !winner.winner && !winner.isDraw) {
+            const timer = setTimeout(() => {
+                const move = computeBestMove(squares);
+                if (move !== undefined) {
+                    const newSquares = [...squares];
+                    newSquares[move] = 'O';
+                    setSquares(newSquares);
+                    setIsX(true);
+                }
+            }, 400);
+            return () => clearTimeout(timer);
+        }
+    }, [isX, squares, winner.winner, winner.isDraw]);
 
     const handleClick = (i) => {
-        if (winner.winner || squares[i]){
+        if (winner.winner || winner.isDraw || squares[i] || !isX){
             return
         }
-        squares[i] = 'X';
-        setSquares(squares);
-        setIsX(!isX);
-        winner = CalculateWinner(squares);
-        if (winner.winner){
-            return
-        }
-        bestMove(squares);
-    }
-
-    const bestMove = (squares) =>{
-        let boardSize = 3;
-        let bestScore = -Infinity;
-        let move;
-        let array = []
-        for (var i = 0; i < boardSize*boardSize; i++){
-            array.push(squares[i]);
-        }
-        console.log(array)
-        for (var i = 0; i < 9; i++){
-            if (array[i] == null){
-                array[i] = 'O';
-                let score = minimax(array, 0, false);
-                array[i] = null;
-                if (score > bestScore){
-                    bestScore = score;
-                    move = i;
-                }
-            }
-        }
-        console.log("move", move)
-        squares[move] = 'O';
-        setSquares(squares)
+        const newSquares = [...squares];
+        newSquares[i] = 'X';
+        setSquares(newSquares);
+        setIsX(false);
     }
 
     const playAgain = () =>{
+        setIsX(true);
         setSquares(Array(9).fill(null));
     }
 
@@ -122,8 +128,24 @@ export const WithAI = () => {
         return <Square value = {squares[i]} onClick = {() => handleClick(i)} />
     }
     
+    let turnIndicator;
+    let indicatorClass = '';
+    if (winner.winner) {
+        turnIndicator = winner.winner === 'X' ? "You Won!" : "You Lost!";
+        indicatorClass = winner.winner === 'X' ? 'active-x' : 'active-o';
+    } else if (winner.isDraw) {
+        turnIndicator = "It's a Draw!";
+    } else {
+        turnIndicator = isX ? "Your Turn (X)" : "Computer's Turn (O)";
+    }
+
     return(
         <div className="board">
+            <div className="turn-indicator">
+                <span className={`turn-label ${!winner.winner && !winner.isDraw && isX ? 'active-x' : ''} ${winner.winner === 'X' ? 'active-x' : ''}`}>X</span>
+                <span className={`turn-text ${indicatorClass ? 'game-over' : ''}`}>{turnIndicator}</span>
+                <span className={`turn-label ${!winner.winner && !winner.isDraw && !isX ? 'active-o' : ''} ${winner.winner === 'O' ? 'active-o' : ''}`}>O</span>
+            </div>
             <div className="players">
                 <p>Computer: O</p>
                 <p>Player: X</p>
@@ -193,24 +215,4 @@ function CalculateWinner(squares){
         isDraw: isDraw
     };
 }
-
-// function bestMove([squares, setSquares]){
-//     let boardSize = 3;
-//     let bestScore = -Infinity;
-//     let move;
-
-//     for (var i = 0; i < 9; i++){
-//         if (squares[i] == null){
-//             let score = minimax(squares, 0, false);
-//             if (score > bestScore){
-//                 bestScore = score;
-//                 move = i;
-//             }
-//         }
-//     }
-//     squares[i] = 'X';
-//     setSquares(squares)
-// }
-
-
 
