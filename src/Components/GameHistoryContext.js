@@ -22,11 +22,13 @@ const saveHistory = (history) => {
 export const GameHistoryProvider = ({ children }) => {
   const [history, setHistory] = useState(loadHistory);
 
-  const addGame = useCallback((mode, winner) => {
+  const addGame = useCallback((mode, winner, moves = [], boardSize = 3) => {
     const game = {
       id: Date.now(),
       mode,
       winner,
+      moves,
+      boardSize,
       date: new Date().toISOString(),
     };
     setHistory((prev) => {

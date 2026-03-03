@@ -14,6 +14,7 @@ export const Board = () => {
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true) //alternate which letter to place on squares
     const [history, setHistory] = React.useState([])
+    const [moves, setMoves] = React.useState([])
     const [gameRecorded, setGameRecorded] = React.useState(false);
     const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
@@ -28,16 +29,17 @@ export const Board = () => {
 
     React.useEffect(() => {
         if (!gameRecorded && (winner.winner || winner.isDraw)) {
-            addGame("Human vs Human", winner.winner || "Draw");
+            addGame("Human vs Human", winner.winner || "Draw", moves, boardSize);
             setGameRecorded(true);
         }
-    }, [winner.winner, winner.isDraw, gameRecorded, addGame]);
+    }, [winner.winner, winner.isDraw, gameRecorded, addGame, moves, boardSize]);
     
     const handleClick = (i) => {
         if (winner.winner || squares[i]){
             return
         }
         setHistory([...history, { squares: [...squares], isX }]);
+        setMoves([...moves, i]);
         const newSquares = [...squares];
         newSquares[i] = isX? 'X' : 'O';
         setSquares(newSquares);
@@ -50,6 +52,7 @@ export const Board = () => {
         setSquares(previous.squares);
         setIsX(previous.isX);
         setHistory(history.slice(0, -1));
+        setMoves(moves.slice(0, -1));
     }
 
     const changeBoardSize = (size) => {
@@ -57,6 +60,7 @@ export const Board = () => {
         setSquares(Array(size * size).fill(null));
         setIsX(true);
         setHistory([]);
+        setMoves([]);
         setGameRecorded(false);
     }
 
@@ -64,6 +68,7 @@ export const Board = () => {
         setIsX(true);
         setSquares(Array(boardSize * boardSize).fill(null));
         setHistory([]);
+        setMoves([]);
         setGameRecorded(false);
     }
 

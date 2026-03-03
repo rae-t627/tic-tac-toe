@@ -25,6 +25,7 @@ export const GameHistory = () => {
                   <th>Mode</th>
                   <th>Result</th>
                   <th>Date</th>
+                  <th>Replay</th>
                 </tr>
               </thead>
               <tbody>
@@ -46,6 +47,13 @@ export const GameHistory = () => {
                     <td>
                       {new Date(game.date).toLocaleDateString()}{' '}
                       {new Date(game.date).toLocaleTimeString()}
+                    </td>
+                    <td>
+                      {game.moves && game.moves.length > 0 ? (
+                        <Link to={`/replay/${game.id}`} className="replay-link">▶ Replay</Link>
+                      ) : (
+                        <span className="no-replay">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

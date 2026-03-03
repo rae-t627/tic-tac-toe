@@ -13,6 +13,7 @@ import { Home } from "./Components/Home.js";
 import { HumanvComp } from "./Components/HumanvComp";
 import { GameHistoryProvider } from "./Components/GameHistoryContext";
 import { GameHistory } from "./Components/GameHistory";
+import { GameReplay } from "./Components/GameReplay";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/history" element={<GameHistory />} />
+              <Route path="/replay/:gameId" element={<GameReplay />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/" element={<Home />} />
               <Route path="/hvh" element ={<HumanvHuman />} />

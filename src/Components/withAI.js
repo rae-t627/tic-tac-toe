@@ -84,6 +84,7 @@ export const WithAI = () => {
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true)
     const [history, setHistory] = React.useState([])
+    const [moves, setMoves] = React.useState([])
     const [gameRecorded, setGameRecorded] = React.useState(false);
     const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
@@ -98,10 +99,10 @@ export const WithAI = () => {
 
     React.useEffect(() => {
         if (!gameRecorded && (winner.winner || winner.isDraw)) {
-            addGame("Human vs Computer", winner.winner || "Draw");
+            addGame("Human vs Computer", winner.winner || "Draw", moves, boardSize);
             setGameRecorded(true);
         }
-    }, [winner.winner, winner.isDraw, gameRecorded, addGame]);
+    }, [winner.winner, winner.isDraw, gameRecorded, addGame, moves, boardSize]);
 
     // Computer moves after player's turn, with a short delay
     React.useEffect(() => {
@@ -110,6 +111,7 @@ export const WithAI = () => {
                 const move = computeBestMove(squares, boardSize);
                 if (move !== undefined) {
                     setHistory(prev => [...prev, { squares: [...squares], isX: false }]);
+                    setMoves(prev => [...prev, move]);
                     const newSquares = [...squares];
                     newSquares[move] = 'O';
                     setSquares(newSquares);
@@ -125,6 +127,7 @@ export const WithAI = () => {
             return
         }
         setHistory(prev => [...prev, { squares: [...squares], isX: true }]);
+        setMoves(prev => [...prev, i]);
         const newSquares = [...squares];
         newSquares[i] = 'X';
         setSquares(newSquares);
@@ -133,11 +136,11 @@ export const WithAI = () => {
 
     const undoMove = () => {
         if (history.length < 2) return;
-        // Undo both AI move and player move
         const previousState = history[history.length - 2];
         setSquares(previousState.squares);
         setIsX(previousState.isX);
         setHistory(history.slice(0, -2));
+        setMoves(moves.slice(0, -2));
     }
 
     const changeBoardSize = (size) => {
@@ -145,6 +148,7 @@ export const WithAI = () => {
         setSquares(Array(size * size).fill(null));
         setIsX(true);
         setHistory([]);
+        setMoves([]);
         setGameRecorded(false);
     }
 
@@ -152,6 +156,7 @@ export const WithAI = () => {
         setIsX(true);
         setSquares(Array(boardSize * boardSize).fill(null));
         setHistory([]);
+        setMoves([]);
         setGameRecorded(false);
     }
 
