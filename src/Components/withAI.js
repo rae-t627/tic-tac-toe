@@ -15,56 +15,62 @@ let scores = {
     tie: 0
 };
 
-function minimax(squares, depth, isMaximising){
-    let result = CalculateWinner(squares);
-
-    if (result.winner !== null){
-        return scores[result.winner]
-    }
-    else if(result.isDraw !== false){
-        return 0;
-    }
-
-    if (isMaximising){
-        let bestScore = -Infinity;
-        for (let i = 0; i < 9; i++){
-            if (squares[i] === null){
-                squares[i] = 'O'
-                let score = minimax(squares, depth + 1, false);
-                squares[i] = null;
-                if (score > bestScore){
-                    bestScore = score;
-                }
-            }
-        }
-        return bestScore;
-    }
-    else{
-        let bestScore = Infinity;
-        for (let i = 0; i < 9; i++){
-            if (squares[i] === null){
-                squares[i] = 'X'
-                let score = minimax(squares, depth + 1, true);
-                squares[i] = null;
-                if (score < bestScore){
-                    bestScore = score;
-                }
-            }
-        }
-        return bestScore;
-    }    
+function getMaxDepth(size) {
+    if (size <= 3) return 20;
+    if (size === 4) return 6;
+    return 4;
 }
 
-function computeBestMove(currentSquares){
+function minimax(squares, size, depth, maxDepth, isMaximising, alpha, beta) {
+    let result = CalculateWinner(squares, size);
+
+    if (result.winner !== null) return scores[result.winner];
+    if (result.isDraw) return 0;
+    if (depth >= maxDepth) return 0;
+
+    const totalCells = size * size;
+
+    if (isMaximising) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < totalCells; i++) {
+            if (squares[i] === null) {
+                squares[i] = 'O';
+                let score = minimax(squares, size, depth + 1, maxDepth, false, alpha, beta);
+                squares[i] = null;
+                bestScore = Math.max(bestScore, score);
+                alpha = Math.max(alpha, score);
+                if (beta <= alpha) break;
+            }
+        }
+        return bestScore;
+    } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < totalCells; i++) {
+            if (squares[i] === null) {
+                squares[i] = 'X';
+                let score = minimax(squares, size, depth + 1, maxDepth, true, alpha, beta);
+                squares[i] = null;
+                bestScore = Math.min(bestScore, score);
+                beta = Math.min(beta, score);
+                if (beta <= alpha) break;
+            }
+        }
+        return bestScore;
+    }
+}
+
+function computeBestMove(currentSquares, size) {
     let bestScore = -Infinity;
     let move;
     let array = [...currentSquares];
-    for (let i = 0; i < 9; i++){
-        if (array[i] == null){
+    const maxDepth = getMaxDepth(size);
+    const totalCells = size * size;
+    for (let i = 0; i < totalCells; i++) {
+        if (array[i] == null) {
             array[i] = 'O';
-            let score = minimax(array, 0, false);
+            let score = minimax(array, size, 0, maxDepth, false, -Infinity, Infinity);
             array[i] = null;
-            if (score > bestScore){
+            if (score > bestScore) {
                 bestScore = score;
                 move = i;
             }
@@ -74,6 +80,7 @@ function computeBestMove(currentSquares){
 }
 
 export const WithAI = () => {
+    const [boardSize, setBoardSize] = React.useState(3)
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true)
     const [history, setHistory] = React.useState([])
@@ -81,7 +88,7 @@ export const WithAI = () => {
     const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
 
-    let winner = CalculateWinner(squares);
+    let winner = CalculateWinner(squares, boardSize);
     if (winner.winner){
         buttonClassName = "";
     }
@@ -100,7 +107,7 @@ export const WithAI = () => {
     React.useEffect(() => {
         if (!isX && !winner.winner && !winner.isDraw) {
             const timer = setTimeout(() => {
-                const move = computeBestMove(squares);
+                const move = computeBestMove(squares, boardSize);
                 if (move !== undefined) {
                     setHistory(prev => [...prev, { squares: [...squares], isX: false }]);
                     const newSquares = [...squares];
@@ -111,7 +118,7 @@ export const WithAI = () => {
             }, 400);
             return () => clearTimeout(timer);
         }
-    }, [isX, squares, winner.winner, winner.isDraw]);
+    }, [isX, squares, winner.winner, winner.isDraw, boardSize]);
 
     const handleClick = (i) => {
         if (winner.winner || winner.isDraw || squares[i] || !isX){
@@ -133,15 +140,23 @@ export const WithAI = () => {
         setHistory(history.slice(0, -2));
     }
 
+    const changeBoardSize = (size) => {
+        setBoardSize(size);
+        setSquares(Array(size * size).fill(null));
+        setIsX(true);
+        setHistory([]);
+        setGameRecorded(false);
+    }
+
     const playAgain = () =>{
         setIsX(true);
-        setSquares(Array(9).fill(null));
+        setSquares(Array(boardSize * boardSize).fill(null));
         setHistory([]);
         setGameRecorded(false);
     }
 
     const renderSquare = (i) =>{
-        return <Square value = {squares[i]} onClick = {() => handleClick(i)} />
+        return <Square key={i} value = {squares[i]} onClick = {() => handleClick(i)} />
     }
     
     let turnIndicator;
@@ -156,11 +171,22 @@ export const WithAI = () => {
     }
 
     return(
-        <div className="board">
+        <div className={`board board-size-${boardSize}`}>
             <div className="turn-indicator">
                 <span className={`turn-label ${!winner.winner && !winner.isDraw && isX ? 'active-x' : ''} ${winner.winner === 'X' ? 'active-x' : ''}`}>X</span>
                 <span className={`turn-text ${indicatorClass ? 'game-over' : ''}`}>{turnIndicator}</span>
                 <span className={`turn-label ${!winner.winner && !winner.isDraw && !isX ? 'active-o' : ''} ${winner.winner === 'O' ? 'active-o' : ''}`}>O</span>
+            </div>
+            <div className="size-selector">
+                {[3, 4, 5].map(size => (
+                    <button
+                        key={size}
+                        className={`size-btn ${boardSize === size ? 'size-btn-active' : ''}`}
+                        onClick={() => changeBoardSize(size)}
+                    >
+                        {size}x{size}
+                    </button>
+                ))}
             </div>
             <div className="players">
                 <p>Computer: O</p>
@@ -180,57 +206,52 @@ export const WithAI = () => {
                 </div>
             )}
 
-            <div className="board-row pt-3">
-                {renderSquare(0)}
-                {renderSquare(1)}
-                {renderSquare(2)}
-            </div>
-            <div className="board-row p-0">
-                {renderSquare(3)}
-                {renderSquare(4)}
-                {renderSquare(5)}
-            </div>
-            <div className="board-row p-0">
-                {renderSquare(6)}
-                {renderSquare(7)}
-                {renderSquare(8)}
-            </div>
+            {Array.from({ length: boardSize }, (_, row) => (
+                <div className={`board-row ${row === 0 ? 'pt-3' : 'p-0'}`} key={row}>
+                    {Array.from({ length: boardSize }, (_, col) => renderSquare(row * boardSize + col))}
+                </div>
+            ))}
         </div>
     )
 }
 
-function CalculateWinner(squares){
-    let winningPatterns = [
-        [0, 1, 2], 
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ]
-    let isDraw = false;
+function generateWinningPatterns(size) {
+    const patterns = [];
+    for (let r = 0; r < size; r++) {
+        const row = [];
+        for (let c = 0; c < size; c++) row.push(r * size + c);
+        patterns.push(row);
+    }
+    for (let c = 0; c < size; c++) {
+        const col = [];
+        for (let r = 0; r < size; r++) col.push(r * size + c);
+        patterns.push(col);
+    }
+    const diag1 = [], diag2 = [];
+    for (let i = 0; i < size; i++) {
+        diag1.push(i * size + i);
+        diag2.push(i * size + (size - 1 - i));
+    }
+    patterns.push(diag1, diag2);
+    return patterns;
+}
 
-    for (let i = 0; i < winningPatterns.length; i++){
-        let [a, b, c] = winningPatterns[i];         //deconstructing into a, b, c
-        
-        if (squares[a] === squares[b] && squares[a] === squares[c] && squares[a]){
+function CalculateWinner(squares, size) {
+    const winningPatterns = generateWinningPatterns(size);
+
+    for (let i = 0; i < winningPatterns.length; i++) {
+        const pattern = winningPatterns[i];
+        const first = squares[pattern[0]];
+        if (first && pattern.every(idx => squares[idx] === first)) {
             return {
-                winner: squares[a],
-                winningElements: winningPatterns[i],
+                winner: first,
+                winningElements: pattern,
                 isDraw: false
             };
         }
     }
-    isDraw = true;
 
-    for (let i = 0; i < 9; i++){
-        if (squares[i] === null){
-            isDraw = false;
-            break;
-        }
-    }
+    const isDraw = squares.every(s => s !== null);
     return {
         winner: null,
         winningElements: null,

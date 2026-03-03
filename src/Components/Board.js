@@ -10,6 +10,7 @@ import {
   } from "react-router-dom";
 
 export const Board = () => {
+    const [boardSize, setBoardSize] = React.useState(3)
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true) //alternate which letter to place on squares
     const [history, setHistory] = React.useState([])
@@ -17,7 +18,7 @@ export const Board = () => {
     const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
 
-    let winner = CalculateWinner(squares);
+    let winner = CalculateWinner(squares, boardSize);
     if (winner.winner){
         buttonClassName = "";
     }
@@ -51,15 +52,23 @@ export const Board = () => {
         setHistory(history.slice(0, -1));
     }
 
+    const changeBoardSize = (size) => {
+        setBoardSize(size);
+        setSquares(Array(size * size).fill(null));
+        setIsX(true);
+        setHistory([]);
+        setGameRecorded(false);
+    }
+
     const playAgain = () =>{
         setIsX(true);
-        setSquares(Array(9).fill(null));
+        setSquares(Array(boardSize * boardSize).fill(null));
         setHistory([]);
         setGameRecorded(false);
     }
 
     const renderSquare = (i) =>{
-        return <Square value = {squares[i]} onClick = {() => handleClick(i)} />
+        return <Square key={i} value = {squares[i]} onClick = {() => handleClick(i)} />
     }
     
     let turnIndicator;
@@ -74,11 +83,22 @@ export const Board = () => {
     }
 
     return(
-        <div className="board">
+        <div className={`board board-size-${boardSize}`}>
             <div className="turn-indicator">
                 <span className={`turn-label ${!winner.winner && !winner.isDraw && isX ? 'active-x' : ''} ${winner.winner === 'X' ? 'active-x' : ''}`}>X</span>
                 <span className={`turn-text ${indicatorClass ? 'game-over' : ''}`}>{turnIndicator}</span>
                 <span className={`turn-label ${!winner.winner && !winner.isDraw && !isX ? 'active-o' : ''} ${winner.winner === 'O' ? 'active-o' : ''}`}>O</span>
+            </div>
+            <div className="size-selector">
+                {[3, 4, 5].map(size => (
+                    <button
+                        key={size}
+                        className={`size-btn ${boardSize === size ? 'size-btn-active' : ''}`}
+                        onClick={() => changeBoardSize(size)}
+                    >
+                        {size}x{size}
+                    </button>
+                ))}
             </div>
             <div className="players">
                 <p>Player 1: X</p>
@@ -98,57 +118,52 @@ export const Board = () => {
                 </div>
             )}
 
-            <div className="board-row pt-3">
-                {renderSquare(0)}
-                {renderSquare(1)}
-                {renderSquare(2)}
-            </div>
-            <div className="board-row p-0">
-                {renderSquare(3)}
-                {renderSquare(4)}
-                {renderSquare(5)}
-            </div>
-            <div className="board-row p-0">
-                {renderSquare(6)}
-                {renderSquare(7)}
-                {renderSquare(8)}
-            </div>
+            {Array.from({ length: boardSize }, (_, row) => (
+                <div className={`board-row ${row === 0 ? 'pt-3' : 'p-0'}`} key={row}>
+                    {Array.from({ length: boardSize }, (_, col) => renderSquare(row * boardSize + col))}
+                </div>
+            ))}
         </div>
     )
 }
 
-function CalculateWinner(squares){
-    let winningPatterns = [
-        [0, 1, 2], 
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ]
-    let isDraw = false;
+function generateWinningPatterns(size) {
+    const patterns = [];
+    for (let r = 0; r < size; r++) {
+        const row = [];
+        for (let c = 0; c < size; c++) row.push(r * size + c);
+        patterns.push(row);
+    }
+    for (let c = 0; c < size; c++) {
+        const col = [];
+        for (let r = 0; r < size; r++) col.push(r * size + c);
+        patterns.push(col);
+    }
+    const diag1 = [], diag2 = [];
+    for (let i = 0; i < size; i++) {
+        diag1.push(i * size + i);
+        diag2.push(i * size + (size - 1 - i));
+    }
+    patterns.push(diag1, diag2);
+    return patterns;
+}
 
-    for (let i = 0; i < winningPatterns.length; i++){
-        let [a, b, c] = winningPatterns[i];         //decontructing into a, b, c
-        
-        if (squares [a] === squares[b] && squares[a] === squares[c] && squares[a]){
+function CalculateWinner(squares, size) {
+    const winningPatterns = generateWinningPatterns(size);
+
+    for (let i = 0; i < winningPatterns.length; i++) {
+        const pattern = winningPatterns[i];
+        const first = squares[pattern[0]];
+        if (first && pattern.every(idx => squares[idx] === first)) {
             return {
-                winner: squares[a],
-                winningElements: winningPatterns[i],
+                winner: first,
+                winningElements: pattern,
                 isDraw: false
             };
         }
     }
-    isDraw = true;
 
-    for (let i = 0; i < 9; i++){
-        if (squares[i] === null){
-            isDraw = false;
-            break;
-        }
-    }
+    const isDraw = squares.every(s => s !== null);
     return {
         winner: null,
         winningElements: null,
