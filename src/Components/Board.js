@@ -12,6 +12,7 @@ import {
 export const Board = () => {
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true) //alternate which letter to place on squares
+    const [history, setHistory] = React.useState([])
     const [gameRecorded, setGameRecorded] = React.useState(false);
     const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
@@ -35,15 +36,25 @@ export const Board = () => {
         if (winner.winner || squares[i]){
             return
         }
+        setHistory([...history, { squares: [...squares], isX }]);
         const newSquares = [...squares];
         newSquares[i] = isX? 'X' : 'O';
         setSquares(newSquares);
         setIsX(!isX);
     }
 
+    const undoMove = () => {
+        if (history.length === 0) return;
+        const previous = history[history.length - 1];
+        setSquares(previous.squares);
+        setIsX(previous.isX);
+        setHistory(history.slice(0, -1));
+    }
+
     const playAgain = () =>{
         setIsX(true);
         setSquares(Array(9).fill(null));
+        setHistory([]);
         setGameRecorded(false);
     }
 
@@ -80,6 +91,12 @@ export const Board = () => {
                     <button className = {buttonClassName}><Image src={homeButton} fluid style={{ maxHeight: "8vh", maxWidth:"30vw"}}/></button>    
                 </Link>
             </div>
+
+            {!winner.winner && !winner.isDraw && history.length > 0 && (
+                <div className="undo-container">
+                    <button className="undo-btn" onClick={undoMove}>Undo Move</button>
+                </div>
+            )}
 
             <div className="board-row pt-3">
                 {renderSquare(0)}

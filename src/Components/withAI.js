@@ -76,6 +76,7 @@ function computeBestMove(currentSquares){
 export const WithAI = () => {
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true)
+    const [history, setHistory] = React.useState([])
     const [gameRecorded, setGameRecorded] = React.useState(false);
     const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
@@ -101,6 +102,7 @@ export const WithAI = () => {
             const timer = setTimeout(() => {
                 const move = computeBestMove(squares);
                 if (move !== undefined) {
+                    setHistory(prev => [...prev, { squares: [...squares], isX: false }]);
                     const newSquares = [...squares];
                     newSquares[move] = 'O';
                     setSquares(newSquares);
@@ -115,15 +117,26 @@ export const WithAI = () => {
         if (winner.winner || winner.isDraw || squares[i] || !isX){
             return
         }
+        setHistory(prev => [...prev, { squares: [...squares], isX: true }]);
         const newSquares = [...squares];
         newSquares[i] = 'X';
         setSquares(newSquares);
         setIsX(false);
     }
 
+    const undoMove = () => {
+        if (history.length < 2) return;
+        // Undo both AI move and player move
+        const previousState = history[history.length - 2];
+        setSquares(previousState.squares);
+        setIsX(previousState.isX);
+        setHistory(history.slice(0, -2));
+    }
+
     const playAgain = () =>{
         setIsX(true);
         setSquares(Array(9).fill(null));
+        setHistory([]);
         setGameRecorded(false);
     }
 
@@ -160,6 +173,12 @@ export const WithAI = () => {
                     <button className = {buttonClassName}><Image src={homeButton} fluid style={{ maxHeight: "8vh", maxWidth:"30vw"}}/></button>    
                 </Link>
             </div>
+
+            {!winner.winner && !winner.isDraw && isX && history.length >= 2 && (
+                <div className="undo-container">
+                    <button className="undo-btn" onClick={undoMove}>Undo Move</button>
+                </div>
+            )}
 
             <div className="board-row pt-3">
                 {renderSquare(0)}

@@ -280,6 +280,29 @@ button{
     height: 1px;
 }
 
+.undo-container{
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+}
+
+.undo-btn{
+    background-color: #A084DC;
+    color: white;
+    border: 2px solid #5727A3;
+    border-radius: 8px;
+    padding: 6px 20px;
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.undo-btn:hover{
+    background-color: #5727A3;
+}
+
 .dashboard{
     min-height: 95vh;
     background-color: #32208D;
