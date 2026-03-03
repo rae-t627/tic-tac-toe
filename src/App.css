@@ -520,6 +520,14 @@ button{
 
 .replay-board{
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+}
+
+.replay-board .board-row{
+    width: auto;
 }
 
 .replay-info{
