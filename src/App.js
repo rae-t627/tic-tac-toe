@@ -18,7 +18,7 @@ import { GameReplay } from "./Components/GameReplay";
 function App() {
   return (
     <GameHistoryProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <div>
           <MyNavigationBar />
           <div>
