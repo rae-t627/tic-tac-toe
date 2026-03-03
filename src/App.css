@@ -366,9 +366,63 @@ button{
     font-weight: bold;
 }
 
+.stats-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 700px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.stat-card{
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-value{
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 2.5rem;
+    color: white;
+}
+
+.stat-label{
+    font-family: sans-serif, Arial;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 1px;
+}
+
+.view-history-link{
+    font-family: sans-serif, Arial;
+    font-size: 1.1rem;
+    color: #A084DC;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.view-history-link:hover{
+    color: #D6C5F0;
+}
+
+.dashboard-empty a{
+    color: #A084DC;
+}
+
 @media (max-width: 600px){
     .dashboard-title{
         font-size: 1.8rem;
+    }
+    .stats-grid{
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .stat-value{
+        font-size: 2rem;
     }
     .history-table th,
     .history-table td{

@@ -1,41 +1,51 @@
 import React from 'react'
 import { useGameHistory } from './GameHistoryContext';
+import { Link } from 'react-router-dom';
 
 export const Dashboard = () => {
-  const { history, clearHistory } = useGameHistory();
+  const { history } = useGameHistory();
+
+  const totalGames = history.length;
+  const xWins = history.filter(g => g.winner === 'X').length;
+  const oWins = history.filter(g => g.winner === 'O').length;
+  const draws = history.filter(g => g.winner === 'Draw').length;
+  const hvhGames = history.filter(g => g.mode === 'Human vs Human').length;
+  const hvcGames = history.filter(g => g.mode === 'Human vs Computer').length;
 
   return (
     <div className="dashboard">
-      <h1 className="dashboard-title">Game History</h1>
-      {history.length === 0 ? (
-        <p className="dashboard-empty">No games played yet. Go play some games!</p>
+      <h1 className="dashboard-title">Dashboard</h1>
+      {totalGames === 0 ? (
+        <p className="dashboard-empty">No games played yet. <Link to="/">Go play some games!</Link></p>
       ) : (
         <>
-          <button className="clear-history-btn" onClick={clearHistory}>Clear History</button>
-          <div className="history-table-wrapper">
-            <table className="history-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Mode</th>
-                  <th>Result</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((game, index) => (
-                  <tr key={game.id}>
-                    <td>{history.length - index}</td>
-                    <td>{game.mode}</td>
-                    <td className={`result-${game.winner === 'Draw' ? 'draw' : game.winner === 'X' ? 'x' : 'o'}`}>
-                      {game.winner === 'Draw' ? 'Draw' : `${game.winner} Wins`}
-                    </td>
-                    <td>{new Date(game.date).toLocaleDateString()} {new Date(game.date).toLocaleTimeString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <span className="stat-value">{totalGames}</span>
+              <span className="stat-label">Total Games</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-value result-x">{xWins}</span>
+              <span className="stat-label">X Wins</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-value result-o">{oWins}</span>
+              <span className="stat-label">O Wins</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-value result-draw">{draws}</span>
+              <span className="stat-label">Draws</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-value">{hvhGames}</span>
+              <span className="stat-label">Human vs Human</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-value">{hvcGames}</span>
+              <span className="stat-label">Human vs Computer</span>
+            </div>
           </div>
+          <Link to="/history" className="view-history-link">View Full Game History →</Link>
         </>
       )}
     </div>

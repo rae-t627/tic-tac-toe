@@ -16,6 +16,7 @@ function MyNavigationBar() {
             <Nav className="justify-content-end" style={{ width: "100%" }}>
               <Nav.Link as={Link} to = "/" style={{ paddingLeft: "2.5rem" }}>Home</Nav.Link>
               <Nav.Link as={Link} to = "/dashboard" style={{ paddingLeft: "2.5rem" }}>Dashboard</Nav.Link>
+              <Nav.Link as={Link} to = "/history" style={{ paddingLeft: "2.5rem" }}>Game History</Nav.Link>
               <Nav.Link as={Link} to = "/contact" style={{ paddingLeft: "2.5rem" }}>Contact Us</Nav.Link>
             </Nav>
           </Navbar.Collapse>
