@@ -3,6 +3,7 @@ import { Square } from './Square'
 import Image from "react-bootstrap/Image";
 import restartButton from "../Images/restartButton.png"
 import homeButton from "../Images/homeButton.png"
+import { useGameHistory } from './GameHistoryContext';
 
 import {
     Link,
@@ -11,22 +12,24 @@ import {
 export const Board = () => {
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true) //alternate which letter to place on squares
+    const [gameRecorded, setGameRecorded] = React.useState(false);
+    const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
 
     let winner = CalculateWinner(squares);
-    let status;
     if (winner.winner){
-        status = "Winner: " + winner.winner;
         buttonClassName = "";
     }
     else if (winner.isDraw){
-        status = "Draw!";
         buttonClassName = "";
     }
-    else{
-        let temp = isX? 'X' : 'O';
-        status = 'Next player: ' + temp;
-    }
+
+    React.useEffect(() => {
+        if (!gameRecorded && (winner.winner || winner.isDraw)) {
+            addGame("Human vs Human", winner.winner || "Draw");
+            setGameRecorded(true);
+        }
+    }, [winner.winner, winner.isDraw, gameRecorded, addGame]);
     
     const handleClick = (i) => {
         if (winner.winner || squares[i]){
@@ -41,6 +44,7 @@ export const Board = () => {
     const playAgain = () =>{
         setIsX(true);
         setSquares(Array(9).fill(null));
+        setGameRecorded(false);
     }
 
     const renderSquare = (i) =>{
@@ -48,8 +52,10 @@ export const Board = () => {
     }
     
     let turnIndicator;
+    let indicatorClass = '';
     if (winner.winner) {
         turnIndicator = "Winner: Player " + winner.winner + "!";
+        indicatorClass = winner.winner === 'X' ? 'active-x' : 'active-o';
     } else if (winner.isDraw) {
         turnIndicator = "It's a Draw!";
     } else {
@@ -58,14 +64,16 @@ export const Board = () => {
 
     return(
         <div className="board">
-            <div style={{ fontWeight: 'bold', textAlign: 'center', padding: '10px', fontSize: '1.2rem' }}>
-                {turnIndicator}
+            <div className="turn-indicator">
+                <span className={`turn-label ${!winner.winner && !winner.isDraw && isX ? 'active-x' : ''} ${winner.winner === 'X' ? 'active-x' : ''}`}>X</span>
+                <span className={`turn-text ${indicatorClass ? 'game-over' : ''}`}>{turnIndicator}</span>
+                <span className={`turn-label ${!winner.winner && !winner.isDraw && !isX ? 'active-o' : ''} ${winner.winner === 'O' ? 'active-o' : ''}`}>O</span>
             </div>
             <div className="players">
                 <p>Player 1: X</p>
                 <p>Player 2: O</p>
             </div>
-            <div className='status'>{status}</div>
+
             <div className='gameButtons'>
                 <button className = {buttonClassName} onClick={playAgain}><Image src={restartButton} fluid style={{ maxHeight: "8vh", maxWidth:"30vw" }}/></button>
                 <Link to="/">

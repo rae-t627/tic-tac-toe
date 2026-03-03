@@ -3,6 +3,7 @@ import { Square } from './Square'
 import Image from "react-bootstrap/Image";
 import restartButton from "../Images/restartButton.png"
 import homeButton from "../Images/homeButton.png"
+import { useGameHistory } from './GameHistoryContext';
 
 import {
     Link,
@@ -75,23 +76,24 @@ function computeBestMove(currentSquares){
 export const WithAI = () => {
     const [squares, setSquares] = React.useState(Array(9).fill(null))
     const [isX, setIsX] = React.useState(true)
+    const [gameRecorded, setGameRecorded] = React.useState(false);
+    const { addGame } = useGameHistory();
     let buttonClassName = "hidden";
 
     let winner = CalculateWinner(squares);
-    let status;
     if (winner.winner){
-        if (winner.winner !== 'X'){
-            status = "You lost!"
-        }
-        else{
-            status = "You won!"
-        }
         buttonClassName = "";
     }
     else if (winner.isDraw){
-        status = "Draw!";
         buttonClassName = "";
     }
+
+    React.useEffect(() => {
+        if (!gameRecorded && (winner.winner || winner.isDraw)) {
+            addGame("Human vs Computer", winner.winner || "Draw");
+            setGameRecorded(true);
+        }
+    }, [winner.winner, winner.isDraw, gameRecorded, addGame]);
 
     // Computer moves after player's turn, with a short delay
     React.useEffect(() => {
@@ -122,6 +124,7 @@ export const WithAI = () => {
     const playAgain = () =>{
         setIsX(true);
         setSquares(Array(9).fill(null));
+        setGameRecorded(false);
     }
 
     const renderSquare = (i) =>{
@@ -150,7 +153,7 @@ export const WithAI = () => {
                 <p>Computer: O</p>
                 <p>Player: X</p>
             </div>
-            <div className='status'>{status}</div>
+
             <div className='gameButtons'>
                 <button className = {buttonClassName} onClick={playAgain}><Image src={restartButton} fluid style={{ maxHeight: "8vh", maxWidth:"30vw" }}/></button>
                 <Link to="/">

@@ -11,23 +11,26 @@ import { Dashboard } from "./Components/Dashboard.js";
 import { Contact } from "./Components/Contact.js";
 import { Home } from "./Components/Home.js";
 import { HumanvComp } from "./Components/HumanvComp";
+import { GameHistoryProvider } from "./Components/GameHistoryContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div>
-        <MyNavigationBar />
+    <GameHistoryProvider>
+      <BrowserRouter>
         <div>
-          <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/hvh" element ={<HumanvHuman />} />
-            <Route path = "/hvc" element = {<HumanvComp/>} />
-          </Routes>
+          <MyNavigationBar />
+          <div>
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/hvh" element ={<HumanvHuman />} />
+              <Route path = "/hvc" element = {<HumanvComp/>} />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </GameHistoryProvider>
   );
 }
 
