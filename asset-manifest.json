@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/tic-tac-toe/static/css/main.59413986.css",
+    "main.js": "/tic-tac-toe/static/js/main.5461ac55.js",
+    "static/media/playful-tic-tac-toe-free-vector.jpg": "/tic-tac-toe/static/media/playful-tic-tac-toe-free-vector.03f378e7940bc706f249.jpg",
+    "static/media/hvc-icon.png": "/tic-tac-toe/static/media/hvc-icon.e87cdb2ec31281e75449.png",
+    "index.html": "/tic-tac-toe/index.html",
+    "main.59413986.css.map": "/tic-tac-toe/static/css/main.59413986.css.map",
+    "main.5461ac55.js.map": "/tic-tac-toe/static/js/main.5461ac55.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.59413986.css",
+    "static/js/main.5461ac55.js"
+  ]
+}
